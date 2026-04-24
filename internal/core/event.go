@@ -26,3 +26,28 @@ type Event struct {
 type EventRepository interface {
 	Save(ctx context.Context, e Event) error
 }
+
+func DetermineContainerState(events []Event) string {
+	if len(events) == 0 {
+		return "Unknown"
+	}
+	state := "Unknown"
+	for _, event := range events {
+		if event.Type == ContainerCreated {
+			state = "Pending"
+		}
+		if event.Type == ContainerDeleted {
+			state = "Deleted"
+		}
+		if event.Type == ContainerStarted {
+			state = "Running"
+		}
+		if event.Type == ContainerStopped {
+			state = "Stopped"
+		}
+		if event.Type == ContainerUpdated {
+
+		}
+	}
+	return state
+}
