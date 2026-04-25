@@ -37,7 +37,7 @@ func (h *ContainerHandler) CreateContainer(c *gin.Context) {
 	}
 	payload.ID = core.GenerateID()
 
-	log.InforF("Request accepted for create Container: %s (Imagem: %s)", payload.Name, payload.Image)
+	log.InforF("Request accepted for create Container: [%s], %s (Imagem: %s)", payload.ID, payload.Name, payload.Image)
 
 	msgBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -74,7 +74,7 @@ func (h *ContainerHandler) CreateContainer(c *gin.Context) {
 		return
 	}
 
-	log.InforF("Request processed for create Container: %s (Imagem: %s)", payload.Name, payload.Image)
+	log.InforF("Request processed for create Container:[%s] %s (Imagem: %s)", payload.ID, payload.Name, payload.Image)
 	c.JSON(http.StatusAccepted, gin.H{
 		"message": string(msgBytes),
 		"status":  "processing",
