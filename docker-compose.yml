@@ -18,6 +18,16 @@ services:
       timeout: 6s
       retries: 2
 
+  opa:
+    image: openpolicyagent/opa:0.1.1-dev
+    container_name: dockops_opa
+    ports:
+      - "8181:8181"
+    command: ["run", "--server", "--log-level=debug", "/policies"]
+    volumes:
+      - ./policies:/policies
+    restart: unless-stopped
+
   rabbitmq:
     image: rabbitmq:4-management
     container_name: rabbitmq
@@ -49,8 +59,9 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      DB_URL: "host=db user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable"
+      DB_URL: "host=dockdb user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable"
       JWT_SECRET: ${SECRET_KEY_JWT}
+      OPA_URL: "http://opa:8181/v1/data/dockops/authz/allow"
     ports:
       - "8080:8080"
 

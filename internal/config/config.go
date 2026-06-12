@@ -22,6 +22,6 @@ func Load() *AppConfig {
 
 	return &AppConfig{
 		DBUrl:     os.Getenv("DB_URL"),
-		JWTSecret: os.Getenv("JWT_SECRET"),
+		JWTSecret: os.Getenv("SECRET_KEY_JWT"),
 	}
 }
