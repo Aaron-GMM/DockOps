@@ -21,6 +21,6 @@ func Connect(dsn string) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	log.ErrorF("Conexão com PostgreSQL estabelecida com sucesso!")
+	log.InforF("Conexão com PostgreSQL estabelecida com sucesso!")
 	return db, nil
 }
