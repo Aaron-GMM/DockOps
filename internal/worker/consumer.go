@@ -24,7 +24,7 @@ func NewContainerConsumer(provider core.ContainerProvider, repository core.Event
 }
 
 func (c *ContainerConsumer) ProcessMessage(ctx context.Context, msgBytes []byte) error {
-	log.InforF("Received message of queue len: %d, message: %s", len(msgBytes), string(msgBytes))
+	log.InfoF("Received message of queue len: %d, message: %s", len(msgBytes), string(msgBytes))
 	var payload core.ContainerPayload
 
 	err := json.Unmarshal(msgBytes, &payload)
@@ -53,6 +53,6 @@ func (c *ContainerConsumer) ProcessMessage(ctx context.Context, msgBytes []byte)
 		return err
 	}
 
-	log.InforF("Created container: %s", resultMsg)
+	log.InfoF("Created container: %s", resultMsg)
 	return nil
 }
