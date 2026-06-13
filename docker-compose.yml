@@ -7,7 +7,6 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-      POSTGRES_INITDB_ARGS: "--auth-host=md5 --auth-local=trust"
     ports:
       - "5432:5432"
     volumes:
@@ -17,16 +16,6 @@ services:
       interval: 4s
       timeout: 6s
       retries: 2
-
-  opa:
-    image: openpolicyagent/opa:0.1.1-dev
-    container_name: dockops_opa
-    ports:
-      - "8181:8181"
-    command: ["run", "--server", "--log-level=debug", "/policies"]
-    volumes:
-      - ./policies:/policies
-    restart: unless-stopped
 
   rabbitmq:
     image: rabbitmq:4-management
@@ -43,12 +32,19 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-    configs:
-      - source: rabbitmq-plugins
-        target: /etc/rabbitmq/enabled_plugins
     volumes:
       - rabbitmq-lib:/var/lib/rabbitmq/
       - rabbitmq-log:/var/log/rabbitmq
+
+  opa:
+    image: openpolicyagent/opa:latest
+    container_name: dockops_opa
+    ports:
+      - "8181:8181"
+    command: ["run", "--server", "--addr", ":8181", "--log-level", "debug", "/policies"]
+    volumes:
+      - ./policies:/policies
+    restart: unless-stopped
 
   app:
     build: .
@@ -60,14 +56,31 @@ services:
         condition: service_healthy
     environment:
       DB_URL: "host=dockdb user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable"
-      JWT_SECRET: ${SECRET_KEY_JWT}
+      SECRET_KEY_JWT: ${SECRET_KEY_JWT}
       OPA_URL: "http://opa:8181/v1/data/dockops/authz/allow"
+      userRbMQ: ${userRbMQ}
+      passRbMq: ${passRbMq}
+      RABBITMQ_URL: "amqp://${userRbMQ}:${passRbMq}@rabbitmq:5672/"
     ports:
       - "8080:8080"
 
-configs:
-  rabbitmq-plugins:
-    content: "[rabbitmq_management]."
+  worker:
+    build: .
+    container_name: dockOps-Worker
+    command: ["./worker"]
+    depends_on:
+      db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      DB_URL: "host=dockdb user=${DB_USER} password=${DB_PASSWORD} dbname=${DB_NAME} port=5432 sslmode=disable"
+      SECRET_KEY_JWT: ${SECRET_KEY_JWT}
+      userRbMQ: ${userRbMQ}
+      passRbMq: ${passRbMq}
+      RABBITMQ_URL: "amqp://${userRbMQ}:${passRbMq}@rabbitmq:5672/"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
 volumes:
   postgres_data:
