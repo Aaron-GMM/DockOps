@@ -27,16 +27,16 @@ func NewLogger(p string) *Logger {
 }
 
 func (L *Logger) Debug(v ...interface{}) {
-	L.debug.Println(v)
+	L.debug.Println(v...)
 }
 func (L *Logger) Info(v ...interface{}) {
-	L.debug.Println(v)
+	L.info.Println(v...)
 }
 func (L *Logger) Warning(v ...interface{}) {
-	L.warning.Println(v)
+	L.warning.Println(v...)
 }
 func (L *Logger) Error(v ...interface{}) {
-	L.error.Println(v)
+	L.error.Println(v...)
 }
 
 func (L *Logger) Debugf(format string, v ...interface{}) {

@@ -3,7 +3,6 @@ package postgres
 import (
 	"context"
 
-	"github.com/Aaron-GMM/DockOps/internal/config/logger"
 	"github.com/Aaron-GMM/DockOps/internal/core"
 	"gorm.io/gorm"
 )
@@ -17,7 +16,6 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 }
 
 func (r *EventRepository) Save(ctx context.Context, event core.Event) error {
-	log = logger.NewLogger("EventRepository")
 	log.Info("Saving Event ")
 	dbModel := EventModel{
 		ID:         event.ID,
@@ -28,7 +26,7 @@ func (r *EventRepository) Save(ctx context.Context, event core.Event) error {
 	}
 	err := r.db.Create(&dbModel).Error
 	if err != nil {
-		log.Error("Create Event error: %v", err.Error())
+		log.ErrorF("Create Event error: %v", err.Error())
 		return err
 	}
 
