@@ -25,6 +25,7 @@ type Event struct {
 
 type EventRepository interface {
 	Save(ctx context.Context, e Event) error
+	GetByResourceID(ctx context.Context, resourceID string) ([]Event, error)
 }
 
 func DetermineContainerState(events []Event) string {

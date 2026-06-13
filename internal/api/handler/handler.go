@@ -37,7 +37,7 @@ func (h *ContainerHandler) CreateContainer(c *gin.Context) {
 	}
 	payload.ID = core.GenerateID()
 
-	log.InforF("Request accepted for create Container: [%s], %s (Imagem: %s)", payload.ID, payload.Name, payload.Image)
+	log.InfoF("Request accepted for create Container: [%s], %s (Imagem: %s)", payload.ID, payload.Name, payload.Image)
 
 	msgBytes, err := json.Marshal(payload)
 	if err != nil {
@@ -74,9 +74,31 @@ func (h *ContainerHandler) CreateContainer(c *gin.Context) {
 		return
 	}
 
-	log.InforF("Request processed for create Container:[%s] %s (Imagem: %s)", payload.ID, payload.Name, payload.Image)
+	log.InfoF("Request processed for create Container:[%s] %s (Imagem: %s)", payload.ID, payload.Name, payload.Image)
 	c.JSON(http.StatusAccepted, gin.H{
 		"message": string(msgBytes),
 		"status":  "processing",
+	})
+}
+
+func (h *ContainerHandler) GetContainerStatus(c *gin.Context) {
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ID is required"})
+		return
+	}
+
+	events, err := h.repo.GetByResourceID(c.Request.Context(), id)
+	if err != nil {
+		log.ErrorF("Error fetching events for container %s: %v", id, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch container status"})
+		return
+	}
+
+	state := core.DetermineContainerState(events)
+	c.JSON(http.StatusOK, gin.H{
+		"id":     id,
+		"status": state,
+		"events": events,
 	})
 }
