@@ -29,7 +29,7 @@ func GenerateToken(userID string, role string, secret string) (string, error) {
 		return "", err
 	}
 
-	log.InforF("Token gerado com sucesso para o ID: %s", userID)
+	log.InfoF("Token gerado com sucesso para o ID: %s", userID)
 	return tokenString, nil
 }
 

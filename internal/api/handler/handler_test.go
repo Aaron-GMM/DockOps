@@ -27,6 +27,14 @@ func (m *MockEventRepository) Save(ctx context.Context, event core.Event) error 
 	return args.Error(0)
 }
 
+func (m *MockEventRepository) GetByResourceID(ctx context.Context, resourceID string) ([]core.Event, error) {
+	args := m.Called(ctx, resourceID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]core.Event), args.Error(1)
+}
+
 func (m *MockPublisher) Publish(ctx context.Context, queueName string, message []byte) error {
 	args := m.Called(ctx, queueName, message)
 	return args.Error(0)
@@ -133,5 +141,54 @@ func TestCreateContainer_Successo_DeveRetornarStatusAccepted(t *testing.T) {
 	//Assert
 	assert.Equal(t, http.StatusAccepted, w.Code)
 	mockPub.AssertExpectations(t)
+	mockRep.AssertExpectations(t)
+}
+
+func TestGetContainerStatus_ErroNoRepositorio_DeveRetornarInternalServerError(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	mockPub := new(MockPublisher)
+	mockRep := new(MockEventRepository)
+	mockRep.On("GetByResourceID", mock.Anything, "123").Return(nil, errors.New("db error"))
+
+	handler := NewContainerHandler(mockPub, mockRep)
+	router := gin.Default()
+	router.GET("/api/v1/containers/:id", handler.GetContainerStatus)
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/containers/123", nil)
+	w := httptest.NewRecorder()
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+	mockRep.AssertExpectations(t)
+}
+
+func TestGetContainerStatus_Sucesso_DeveRetornarStatusOk(t *testing.T) {
+	// Arrange
+	gin.SetMode(gin.TestMode)
+	mockPub := new(MockPublisher)
+	mockRep := new(MockEventRepository)
+
+	events := []core.Event{
+		{ID: "e1", ResourceID: "123", Type: core.ContainerCreated},
+		{ID: "e2", ResourceID: "123", Type: core.ContainerStarted},
+	}
+	mockRep.On("GetByResourceID", mock.Anything, "123").Return(events, nil)
+
+	handler := NewContainerHandler(mockPub, mockRep)
+	router := gin.Default()
+	router.GET("/api/v1/containers/:id", handler.GetContainerStatus)
+
+	req, _ := http.NewRequest(http.MethodGet, "/api/v1/containers/123", nil)
+	w := httptest.NewRecorder()
+
+	// Act
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusOK, w.Code)
 	mockRep.AssertExpectations(t)
 }

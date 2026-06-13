@@ -1,22 +1,21 @@
 package dockops.authz
 
-default allow = false
+import rego.v1
 
-allow{
+default allow := false
+
+allow if {
     input.role == "admin"
 }
 
-allow {
+allow if {
     input.role == "developer"
-    input.method == "POST"
-    input.path == "/api/v1/containers"
+    input.method == ["POST", "GET"][_]
+    startswith(input.path, "/api/v1/containers")
 }
 
-allow {
+allow if {
     input.role == "viewer"
     input.method == "GET"
-    input.path == "/api/v1/containers"
+    startswith(input.path, "/api/v1/containers")
 }
-
-
-

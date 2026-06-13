@@ -39,7 +39,7 @@ func (p *RabbitPublisher) Publish(ctx context.Context,
 		log.ErrorF("Broker failed to publish: %s", err)
 		return err
 	}
-	log.InforF("Publishing de %d bytes for queue: %s", len(message), queueName)
+	log.InfoF("Publishing de %d bytes for queue: %s", len(message), queueName)
 	return nil
 }
 

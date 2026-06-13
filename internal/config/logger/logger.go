@@ -42,7 +42,7 @@ func (L *Logger) Error(v ...interface{}) {
 func (L *Logger) Debugf(format string, v ...interface{}) {
 	L.debug.Printf(format, v...)
 }
-func (L *Logger) InforF(format string, v ...interface{}) {
+func (L *Logger) InfoF(format string, v ...interface{}) {
 	L.info.Printf(format, v...)
 }
 func (L *Logger) WarningF(format string, v ...interface{}) {

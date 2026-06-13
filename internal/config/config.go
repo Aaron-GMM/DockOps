@@ -8,8 +8,9 @@ import (
 )
 
 type AppConfig struct {
-	DBUrl     string
-	JWTSecret string
+	DBUrl       string
+	JWTSecret   string
+	RabbitMQUrl string
 }
 
 var Logger = logger.NewLogger("Config")
@@ -21,7 +22,8 @@ func Load() *AppConfig {
 	}
 
 	return &AppConfig{
-		DBUrl:     os.Getenv("DB_URL"),
-		JWTSecret: os.Getenv("SECRET_KEY_JWT"),
+		DBUrl:       os.Getenv("DB_URL"),
+		JWTSecret:   os.Getenv("SECRET_KEY_JWT"),
+		RabbitMQUrl: os.Getenv("RABBITMQ_URL"),
 	}
 }

@@ -30,6 +30,14 @@ func (me *MockEventRepository) Save(ctx context.Context, event core.Event) error
 	return args.Error(0)
 }
 
+func (me *MockEventRepository) GetByResourceID(ctx context.Context, resourceID string) ([]core.Event, error) {
+	args := me.Called(ctx, resourceID)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).([]core.Event), args.Error(1)
+}
+
 func TestProcessMessage_ErroAoDecodificarJSON_DeveRetornarErro(t *testing.T) {
 	// Arrange
 	mockProvider := new(MockContainerProvider)
