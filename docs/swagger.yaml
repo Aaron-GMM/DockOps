@@ -10,6 +10,13 @@ definitions:
         items:
           type: string
         type: array
+      env:
+        example:
+        - '["FOO=BAR"'
+        - '"DB_PASS=123"]'
+        items:
+          type: string
+        type: array
       id:
         example: cont-12345
         type: string
@@ -19,6 +26,12 @@ definitions:
       name:
         example: my-nginx
         type: string
+      ports:
+        additionalProperties:
+          type: string
+        example:
+          '{"80/tcp"': '"8080"}'
+        type: object
     type: object
   handler.LoginRequest:
     properties:
