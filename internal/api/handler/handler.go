@@ -24,6 +24,18 @@ func NewContainerHandler(publisher core.MessagePublisher, repo core.EventReposit
 	}
 }
 
+// CreateContainer godoc
+// @Summary Create a container
+// @Description Requests the creation of a new container
+// @Tags containers
+// @Accept json
+// @Produce json
+// @Param payload body core.ContainerPayload true "Container Payload"
+// @Success 202 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Security BearerAuth
+// @Router /containers/ [post]
 func (h *ContainerHandler) CreateContainer(c *gin.Context) {
 	payload := core.ContainerPayload{}
 
@@ -81,6 +93,17 @@ func (h *ContainerHandler) CreateContainer(c *gin.Context) {
 	})
 }
 
+// GetContainerStatus godoc
+// @Summary Get container status
+// @Description Retrieves the status and event history of a container
+// @Tags containers
+// @Produce json
+// @Param id path string true "Container ID"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 500 {object} map[string]interface{}
+// @Security BearerAuth
+// @Router /containers/{id} [get]
 func (h *ContainerHandler) GetContainerStatus(c *gin.Context) {
 	id := c.Param("id")
 	if id == "" {

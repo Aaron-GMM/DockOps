@@ -1,0 +1,157 @@
+basePath: /api/v1
+definitions:
+  core.ContainerPayload:
+    properties:
+      command:
+        example:
+        - '["nginx"'
+        - ' "-g"'
+        - ' "daemon off;"]'
+        items:
+          type: string
+        type: array
+      id:
+        example: cont-12345
+        type: string
+      image:
+        example: nginx:latest
+        type: string
+      name:
+        example: my-nginx
+        type: string
+    type: object
+  handler.LoginRequest:
+    properties:
+      password:
+        example: secret123
+        type: string
+      username:
+        example: aarongm
+        type: string
+    required:
+    - password
+    - username
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: aarongmdev@gmail.com
+    name: API Support
+    url: http://www.linkedin.com/in/aaron-moreira
+  description: This is a sample server celler server.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: DockOps API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns a JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authenticate user
+      tags:
+      - auth
+  /containers/:
+    post:
+      consumes:
+      - application/json
+      description: Requests the creation of a new container
+      parameters:
+      - description: Container Payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/core.ContainerPayload'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a container
+      tags:
+      - containers
+  /containers/{id}:
+    get:
+      description: Retrieves the status and event history of a container
+      parameters:
+      - description: Container ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get container status
+      tags:
+      - containers
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

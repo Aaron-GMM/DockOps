@@ -15,12 +15,13 @@ const (
 	ContainerUpdated EventType = "ContainerUpdated"
 )
 
+// Event represents a system event related to a container or other resource.
 type Event struct {
-	ID         string    `json:"id"`
-	ResourceID string    `json:"resource_id"`
-	Type       EventType `json:"type"`
-	Payload    []byte    `json:"payload"`
-	CreatedAt  time.Time `json:"created_at"`
+	ID         string    `json:"id" example:"evt-98765"`
+	ResourceID string    `json:"resource_id" example:"cont-12345"`
+	Type       EventType `json:"type" example:"ContainerCreated"`
+	Payload    []byte    `json:"payload" swaggertype:"string" example:"{\"image\":\"nginx\"}"`
+	CreatedAt  time.Time `json:"created_at" example:"2026-09-02T22:36:00Z"`
 }
 
 type EventRepository interface {

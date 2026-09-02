@@ -21,11 +21,23 @@ func NewAuthHandler(userRepo core.UserRepository) *AuthHandler {
 	}
 }
 
+// LoginRequest model for authentication
 type LoginRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	Username string `json:"username" binding:"required" example:"aarongm"`
+	Password string `json:"password" binding:"required" example:"secret123"`
 }
 
+// Login godoc
+// @Summary Authenticate user
+// @Description Authenticates a user and returns a JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param request body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]interface{}
+// @Failure 400 {object} map[string]interface{}
+// @Failure 401 {object} map[string]interface{}
+// @Router /auth/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
