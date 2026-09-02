@@ -7,9 +7,10 @@ import (
 	"os"
 
 	"github.com/Aaron-GMM/DockOps/internal/core"
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/docker/go-connections/nat"
 )
 
 type DockerClient struct {
@@ -35,18 +36,39 @@ func (d *DockerClient) Execute(ctx context.Context, action string, payload core.
 
 func (d *DockerClient) createAndStartContainer(ctx context.Context, payload core.ContainerPayload) (string, error) {
 	// 1. Pull Image
-	reader, err := d.cli.ImagePull(ctx, payload.Image, types.ImagePullOptions{})
+	reader, err := d.cli.ImagePull(ctx, payload.Image, image.PullOptions{})
 	if err != nil {
 		return "", fmt.Errorf("failed to pull image: %w", err)
 	}
 	defer reader.Close()
 	io.Copy(os.Stdout, reader) // Log pull progress to stdout for now
 
+	// Configure Ports
+	exposedPorts := nat.PortSet{}
+	portBindings := nat.PortMap{}
+	for cPort, hPort := range payload.Ports {
+		port := nat.Port(cPort)
+		if port.Proto() == "" {
+			port = nat.Port(cPort + "/tcp")
+		}
+		exposedPorts[port] = struct{}{}
+		portBindings[port] = []nat.PortBinding{
+			{
+				HostIP:   "0.0.0.0",
+				HostPort: hPort,
+			},
+		}
+	}
+
 	// 2. Create Container
 	resp, err := d.cli.ContainerCreate(ctx, &container.Config{
-		Image: payload.Image,
-		Cmd:   payload.Command,
-	}, nil, nil, nil, payload.Name)
+		Image:        payload.Image,
+		Cmd:          payload.Command,
+		Env:          payload.Env,
+		ExposedPorts: exposedPorts,
+	}, &container.HostConfig{
+		PortBindings: portBindings,
+	}, nil, nil, payload.Name)
 	if err != nil {
 		return "", fmt.Errorf("failed to create container: %w", err)
 	}

@@ -192,6 +192,16 @@ const docTemplate = `{
                         " \"daemon off;\"]"
                     ]
                 },
+                "env": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[\"FOO=BAR\"",
+                        "\"DB_PASS=123\"]"
+                    ]
+                },
                 "id": {
                     "type": "string",
                     "example": "cont-12345"
@@ -203,6 +213,15 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "example": "my-nginx"
+                },
+                "ports": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    },
+                    "example": {
+                        "{\"80/tcp\"": "\"8080\"}"
+                    }
                 }
             }
         },
